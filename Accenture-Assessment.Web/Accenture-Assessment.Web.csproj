@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Accenture-Assessment.Contracts\Accenture-Assessment.Contracts.csproj" />
+    <ProjectReference Include="..\Accenture-Assessment.ServiceDefaults\Accenture-Assessment.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="9.5.0" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,44 @@
+﻿@page "/holidays"
+@using Accenture_Assesment.Web
+@using Accenture_Assessment.Contracts.Dtos
+@inject ApplicationApiClient ApiClient
+
+<h3>Holidays</h3>
+
+@if (_countries == null)
+{
+    <p><em>Loading countries...</em></p>
+}
+else if (!_countries.Any())
+{
+    <p>No countries available.</p>
+}
+else
+{
+    <div class="mb-3">
+        <InputSelect id="countrySelect" class="form-select" @bind-Value="selectedCountryCode">
+            <option value="">--- Select a country ---</option>
+            @foreach (var country in _countries)
+            {
+                <option value="@country.countryCode">@country.name</option>
+            }
+        </InputSelect>
+    </div>
+}
+
+@code {
+    private List<CountryDto>? _countries;
+    private string selectedCountryCode = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _countries = await ApiClient.GetAsync<List<CountryDto>>("api/countries");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading countries: {ex.Message}");
+            _countries = new List<CountryDto>();
+        }
+    }
+}
