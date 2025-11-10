@@ -45,8 +45,8 @@ namespace Accenture_Assessment.Data.Services
         {
             try
             {
-                _logger.LogInformation("Fetching holidays for {countryCode} in {Year}",countryCode,year);
-                var response =  await _httpClient.GetAsync($"publicholidays/{year}/{countryCode}");
+                _logger.LogInformation("Fetching holidays for {countryCode} in {Year}", countryCode, year);
+                var response = await _httpClient.GetAsync($"publicholidays/{year}/{countryCode}");
                 response.EnsureSuccessStatusCode();
 
                 var holidays = await response.Content.ReadFromJsonAsync<List<HolidayDto>>();
@@ -54,8 +54,56 @@ namespace Accenture_Assessment.Data.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,"Error fetching holidays for {countryCode} in {Year}",countryCode,year);
+                _logger.LogError(ex, "Error fetching holidays for {countryCode} in {Year}", countryCode, year);
                 throw;
+            }
+        }
+
+        public async Task<List<HolidayDto>> GetLastCelebratedHolidaysAsync(string countryCode, int count)
+        {
+            var celebratedHolidays = new List<HolidayDto>();
+            try
+            {
+                _logger.LogInformation("Fetching last {Count} celebrated holidays for {CountryCode}", count,
+                    countryCode);
+
+                var currentDate = DateTime.Now;
+
+                var currentYear = currentDate.Year;
+                var yearOffset = 0;
+
+
+                // Search through previous years until we find enough celebrated holidays
+                while (celebratedHolidays.Count < count)
+                {
+                    var year = currentYear - yearOffset;
+                    var holidays = await GetHolidaysAsync(countryCode, year);
+
+                    var pastHolidays = holidays
+                        .Where(h => h.Date < currentDate)
+                        .OrderByDescending(h => h.Date)
+                        .Take(count - celebratedHolidays.Count)
+                        .ToList();
+
+                    celebratedHolidays.AddRange(pastHolidays);
+                    yearOffset++;
+                }
+
+                // Return exactly the count requested, sorted by most recent
+                return celebratedHolidays
+                    .OrderByDescending(h => h.Date)
+                    .Take(count)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching last celebrated holidays for {CountryCode}: {Message}",
+                    countryCode, ex.Message);
+                // apparently some error, or the year was no long available
+                return celebratedHolidays
+                    .OrderByDescending(h => h.Date)
+                    .Take(count)
+                    .ToList();
             }
         }
     }

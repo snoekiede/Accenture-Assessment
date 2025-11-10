@@ -60,10 +60,11 @@ app.MapGet("/api/holidays/last-celebrated/{countryCode}", async (
     IHolidayDataService service) =>
 {
     var holidays = await service.GetLastCelebratedHolidaysAsync(countryCode);
-    return Results.Ok(holidays.Select(h => new { h.Date, h.Name }));
+    return Results.Ok(holidays.Select(h => new { h.Date, h.Name,h.LocalName }));
 })
 .WithName("GetLastCelebratedHolidays")
-.WithOpenApi();
+.WithOpenApi()
+.WithDescription("Get the last three holiday celebrated in the country");
 
 app.MapGet("/api/holidays/public-count/{year}", async (
     int year,

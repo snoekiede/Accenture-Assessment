@@ -1,4 +1,5 @@
 ﻿@page "/holidays"
+@rendermode InteractiveServer
 @using Accenture_Assesment.Web
 @using Accenture_Assessment.Contracts.Dtos
 @inject ApplicationApiClient ApiClient
@@ -16,19 +17,42 @@ else if (!_countries.Any())
 else
 {
     <div class="mb-3">
-        <InputSelect id="countrySelect" class="form-select" @bind-Value="selectedCountryCode">
+        <label for="countrySelect" class="form-label">Select a Country:</label>
+        <select id="countrySelect" class="form-select" @onchange="OnCountryChanged" value="@selectedCountryCode">
             <option value="">--- Select a country ---</option>
             @foreach (var country in _countries)
             {
                 <option value="@country.countryCode">@country.name</option>
             }
-        </InputSelect>
+        </select>
+        <button class="btn btn-primary mt-2" @onclick="OnGetLastHolidays" disabled="@string.IsNullOrEmpty(selectedCountryCode)">
+            Find holidays
+        </button>
+    </div>
+    
+    <div class="mb-3">
+        @if (_results == null || !_results.Any())
+        {
+            <em>No results</em>
+        }
+        else
+        {
+            <h4>Last Celebrated Holidays:</h4>
+            @foreach (var holiday in _results)
+            {
+                <div class="mb-2">
+                    <strong>@holiday.Name</strong> (@holiday.LocalName) - @holiday.Date.ToShortDateString()
+                </div>
+            }
+        }
     </div>
 }
 
 @code {
     private List<CountryDto>? _countries;
     private string selectedCountryCode = string.Empty;
+    private List<HolidayResultDto>? _results;
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -40,5 +64,26 @@ else
             Console.WriteLine($"Error loading countries: {ex.Message}");
             _countries = new List<CountryDto>();
         }
+    }
+
+    private async Task OnGetLastHolidays()
+    {
+        if (string.IsNullOrEmpty(selectedCountryCode))
+            return;
+            
+        try
+        {
+            _results = await ApiClient.GetAsync<List<HolidayResultDto>>($"api/holidays/last-celebrated/{selectedCountryCode}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading holidays: {ex.Message}");
+            _results = [];
+        }
+    }
+
+    private void OnCountryChanged(ChangeEventArgs e)
+    {
+        selectedCountryCode = e.Value?.ToString() ?? string.Empty;
     }
 }

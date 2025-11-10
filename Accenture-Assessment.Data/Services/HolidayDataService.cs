@@ -67,12 +67,63 @@ namespace Accenture_Assessment.Data.Services
 
             return countries;
         }
-
+        public async Task<List<Holiday>> SyncLastCelebratedHolidaysAsync(string countryCode,int count = 3)
+        {
+            _logger.LogInformation("Syncing last {Count} celebrated holidays for country {CountryCode} from external API.", count, countryCode);
+            var holidays = await _apiClient.GetLastCelebratedHolidaysAsync(countryCode, count);
+            var syncedHolidays = new List<Holiday>();
+            foreach (var holiday in holidays)
+            {
+                if (await _holidayRepository.HolidayExistsAsync(countryCode, holiday.Date.Year))
+                {
+                    _logger.LogInformation("Holiday on {HolidayDate} for country {CountryCode} already exists. Skipping.", holiday.Date, countryCode);
+                    continue;
+                }
+                
+                var addedHoliday = new Holiday
+                {
+                    CountryCode = countryCode,
+                    Date = holiday.Date,
+                    Name = holiday.Name,
+                    LocalName = holiday.LocalName,
+                    Fixed = holiday.Fixed,
+                    Global = holiday.Global,
+                    Counties = holiday.Counties,
+                    LaunchYear = holiday.LaunchYear,
+                    Type = holiday.Type
+                };
+                await _holidayRepository.AddHolidayAsync(addedHoliday);
+                syncedHolidays.Add(addedHoliday);
+                _logger.LogInformation("Added new holiday {HolidayName} on {HolidayDate} for country {CountryCode}.", holiday.LocalName, holiday.Date, countryCode);
+            }
+            return syncedHolidays;
+        }
         public async Task<List<Holiday>> GetLastCelebratedHolidaysAsync(string countryCode, int count = 3)
         {
             _logger.LogInformation("Fetching last {Count} celebrated holidays for country {CountryCode}.", count, countryCode);
 
             var holidays = await _holidayRepository.FetchLastCelebratedHolidaysAsync(countryCode, count);
+            if (!holidays.Any())
+            {
+                holidays = (await _apiClient.GetLastCelebratedHolidaysAsync(countryCode, count)).Select(h=>new Holiday
+                {
+                    CountryCode = h.CountryCode,
+                    Date = h.Date,
+                    Name = h.Name,
+                    LocalName = h.LocalName,
+                    Fixed = h.Fixed,
+                    Global = h.Global,
+                    Counties = h.Counties,
+                    LaunchYear = h.LaunchYear,
+                    Type = h.Type
+                }).ToList();
+            }
+            if (holidays.Count < count)
+            {
+                _logger.LogInformation("Not enough celebrated holidays found locally for {CountryCode}. Syncing from external API.", countryCode);
+                var syncedHolidays = await SyncLastCelebratedHolidaysAsync(countryCode, count - holidays.Count);
+                holidays.AddRange(syncedHolidays);
+            }
 
             _logger.LogInformation("Found {HolidayCount} celebrated holidays for {CountryCode}.", holidays.Count, countryCode);
 

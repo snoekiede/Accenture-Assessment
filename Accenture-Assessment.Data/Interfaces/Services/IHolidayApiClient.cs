@@ -12,5 +12,6 @@ namespace Accenture_Assessment.Data.Interfaces.Services
     {
         Task<List<CountryDto>> GetCountriesAsync();
         Task<List<HolidayDto>> GetHolidaysAsync(string countryCode, int year);
+        Task<List<HolidayDto>> GetLastCelebratedHolidaysAsync(string countryCode, int count);
     }
 }
