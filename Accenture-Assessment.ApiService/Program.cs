@@ -4,6 +4,7 @@ using Accenture_Assessment.Data.Interfaces.Repositories;
 using Accenture_Assessment.Data.Interfaces.Services;
 using Accenture_Assessment.Data.Repositories;
 using Accenture_Assessment.Data.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -69,7 +70,7 @@ app.MapGet("/api/holidays/last-celebrated/{countryCode}", async (
 app.MapGet("/api/holidays/public-count/{year}", async (
     int year,
     IHolidayDataService service,
-    [Microsoft.AspNetCore.Mvc.FromQuery] string[] countryCodes) =>
+    [FromQuery] string[] countryCodes) =>
 {
     if (countryCodes == null || countryCodes.Length == 0)
     {

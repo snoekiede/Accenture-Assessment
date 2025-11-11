@@ -136,7 +136,30 @@ namespace Accenture_Assessment.Data.Services
                 year, string.Join(", ", countryCodes));
 
             var holidays = await _holidayRepository.FetchPublicHolidaysByCountryCodesAndYearAsync(countryCodes, year);
-
+            if (!holidays.Any())
+            {
+                _logger.LogInformation("No public holidays found locally for year {Year}. Fetching from external API.", year);
+                var fetchedHolidays = new List<Holiday>();
+                foreach (var countryCode in countryCodes)
+                {
+                    var countryHolidays = await _apiClient.GetHolidaysAsync(countryCode, year);
+                    fetchedHolidays.AddRange(countryHolidays.Select(h => new Holiday
+                    {
+                        CountryCode = h.CountryCode,
+                        Date = h.Date,
+                        Name = h.Name,
+                        LocalName = h.LocalName,
+                        Fixed = h.Fixed,
+                        Global = h.Global,
+                        Counties = h.Counties,
+                        LaunchYear = h.LaunchYear,
+                        Type = h.Type
+                    }));
+                }
+                holidays = fetchedHolidays;
+                _holidayRepository.AddHolidaysAsync(holidays);
+            }
+            
             // Filter out weekends and group by country
             var result = holidays
                 .Where(h => h.Date.DayOfWeek != DayOfWeek.Saturday && h.Date.DayOfWeek != DayOfWeek.Sunday)

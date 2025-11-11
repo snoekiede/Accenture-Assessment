@@ -32,6 +32,12 @@ namespace Accenture_Assessment.Data.Repositories
             return holiday;
         }
 
+        public async Task AddHolidaysAsync(IEnumerable<Holiday> holidays)
+        {
+            _context.Holidays.AddRange(holidays);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<bool> HolidayExistsAsync(string countryCode, int year)
         {
            return await _context.Holidays.AnyAsync(x=>x.CountryCode==countryCode && x.Date.Year==year);
