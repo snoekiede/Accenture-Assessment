@@ -77,5 +77,13 @@ namespace Accenture_Assessment.Data.Repositories
                 .Where(h => countryCodes.Contains(h.CountryCode) && h.Date.Year == year)
                 .ToListAsync();
         }
+
+        public async Task<bool> HolidayExistsAsync(string countryCode, DateTime date, string name)
+        {
+            return await _context.Holidays.AnyAsync(h =>
+                h.CountryCode == countryCode &&
+                h.Date.Date == date.Date &&
+                h.Name == name);
+        }
     }
 }
