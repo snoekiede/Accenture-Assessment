@@ -227,7 +227,7 @@ and <strong>@_countries.FirstOrDefault(c => c.countryCode == sharedCountry2)?.na
 
     // Public holidays count fields
     private int selectedYear = DateTime.Now.Year;
-    private List<string> selectedCountryCodes = new();
+    private List<string> selectedCountryCodes = [];
     private List<PublicHolidayCountDto>? _publicHolidayCounts;
 
     // Shared holidays fields
@@ -253,13 +253,13 @@ and <strong>@_countries.FirstOrDefault(c => c.countryCode == sharedCountry2)?.na
   _ => "An error occurred while loading countries. Please try again."
  };
    Logger.LogError(ex, "Failed to load countries");
-         _countries = new List<CountryDto>();
+         _countries = [];
         }
         catch (Exception ex)
         {
             _errorMessage = "An unexpected error occurred. Please try again.";
             Logger.LogError(ex, "Unexpected error loading countries");
-            _countries = new List<CountryDto>();
+            _countries = [];
    }
     }
 

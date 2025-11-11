@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Accenture_Assessment.Contracts.Enums;
+﻿using Accenture_Assessment.Contracts.Enums;
 using Accenture_Assessment.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Accenture_Assessment.Data.Contexts
 {
-    public class HolidayDbContext : DbContext
+    public class HolidayDbContext(DbContextOptions<HolidayDbContext> options) : DbContext(options)
     {
-        public HolidayDbContext(DbContextOptions<HolidayDbContext> options) : base(options)
-        {
-        }
         public DbSet<Holiday> Holidays { get; set; }
         public DbSet<Country> Countries { get; set; }
 

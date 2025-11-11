@@ -1,5 +1,4 @@
 using Accenture_Assesment.Web;
-using Accenture_Assessment.Web;
 using Accenture_Assessment.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);

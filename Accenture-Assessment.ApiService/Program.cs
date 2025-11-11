@@ -1,4 +1,3 @@
-using System.Net;
 using System.Threading.RateLimiting;
 using Accenture_Assessment.Contracts.Dtos;
 using Accenture_Assessment.Data.Contexts;
@@ -31,9 +30,9 @@ builder.Services.AddHttpClient<IHolidayApiClient, HolidayApiClient>(client =>
 })
 .AddTransientHttpErrorPolicy(policy => 
     policy.WaitAndRetryAsync(
-        retryCount: nagerApiConfig.GetValue<int>("MaxRetries", 3),
+        retryCount: nagerApiConfig.GetValue("MaxRetries", 3),
      sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(
-            Math.Pow(nagerApiConfig.GetValue<int>("RetryDelaySeconds", 2), retryAttempt))));
+            Math.Pow(nagerApiConfig.GetValue("RetryDelaySeconds", 2), retryAttempt))));
 
 builder.Services.AddScoped<IHolidayDataService, HolidayDataService>();
 
@@ -43,7 +42,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
    var allowedOrigins = builder.Configuration["AllowedOrigins"]?.Split(',') 
-            ?? new[] { "https://localhost:7148" };
+            ?? ["https://localhost:7148"];
 
         policy.WithOrigins(allowedOrigins)
      .AllowAnyMethod()
@@ -60,8 +59,8 @@ builder.Services.AddRateLimiter(options =>
 partitionKey: context.User.Identity?.Name ?? context.Request.Headers.Host.ToString(),
      factory: partition => new FixedWindowRateLimiterOptions
          {
-      PermitLimit = builder.Configuration.GetValue<int>("RateLimiting:PermitLimit", 100),
-              Window = builder.Configuration.GetValue<TimeSpan>("RateLimiting:Window", TimeSpan.FromMinutes(1)),
+      PermitLimit = builder.Configuration.GetValue("RateLimiting:PermitLimit", 100),
+              Window = builder.Configuration.GetValue("RateLimiting:Window", TimeSpan.FromMinutes(1)),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
       QueueLimit = 0
             }));
@@ -80,7 +79,7 @@ builder.Services.AddHealthChecks()
 // Add Output Caching
 builder.Services.AddOutputCache(options =>
 {
-    options.AddBasePolicy(builder => builder.Expire(TimeSpan.FromMinutes(10)));
+    options.AddBasePolicy(b => b.Expire(TimeSpan.FromMinutes(10)));
 });
 
 builder.Services.AddProblemDetails();
@@ -120,8 +119,8 @@ if (app.Environment.IsDevelopment())
 // Validation helper methods
 static bool ValidateYear(int year, IConfiguration config)
 {
-    var minYear = config.GetValue<int>("Validation:MinYear", 1900);
-    var maxYear = config.GetValue<int>("Validation:MaxYear", 2100);
+    var minYear = config.GetValue("Validation:MinYear", 1900);
+    var maxYear = config.GetValue("Validation:MaxYear", 2100);
     return year >= minYear && year <= maxYear;
 }
 
@@ -175,9 +174,9 @@ app.MapGet("/api/holidays/public-count/{year}", async (
     [FromQuery] string[] countryCodes) =>
 {
     if (!ValidateYear(year, config))
-        return Results.BadRequest($"Year must be between {config.GetValue<int>("Validation:MinYear", 1900)} and {config.GetValue<int>("Validation:MaxYear", 2100)}.");
+        return Results.BadRequest($"Year must be between {config.GetValue("Validation:MinYear", 1900)} and {config.GetValue("Validation:MaxYear", 2100)}.");
 
-    if (countryCodes == null || countryCodes.Length == 0)
+    if (countryCodes.Length == 0)
         return Results.BadRequest("At least one country code must be provided.");
 
     if (!countryCodes.All(ValidateCountryCode))
@@ -206,7 +205,7 @@ app.MapGet("/api/holidays/shared/{year}", async (
     IConfiguration config) =>
 {
     if (!ValidateYear(year, config))
-      return Results.BadRequest($"Year must be between {config.GetValue<int>("Validation:MinYear", 1900)} and {config.GetValue<int>("Validation:MaxYear", 2100)}.");
+      return Results.BadRequest($"Year must be between {config.GetValue("Validation:MinYear", 1900)} and {config.GetValue("Validation:MaxYear", 2100)}.");
 
     if (!ValidateCountryCode(countryCode1) || !ValidateCountryCode(countryCode2))
  return Results.BadRequest("Invalid country code format. Must be 2 uppercase letters.");

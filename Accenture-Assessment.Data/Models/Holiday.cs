@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Accenture_Assessment.Contracts.Enums;
+﻿using Accenture_Assessment.Contracts.Enums;
 
 
 namespace Accenture_Assessment.Data.Models
