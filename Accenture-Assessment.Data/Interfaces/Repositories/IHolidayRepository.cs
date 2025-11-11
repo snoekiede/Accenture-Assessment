@@ -18,5 +18,6 @@ namespace Accenture_Assessment.Data.Interfaces.Repositories
         Task<List<Holiday>> FetchHolidaysByCountryCodeAndYearAsync(string countryCode, int year);
         Task<List<Holiday>> FetchLastCelebratedHolidaysAsync(string countryCode, int count);
         Task<List<Holiday>> FetchPublicHolidaysByCountryCodesAndYearAsync(List<string> countryCodes, int year);
+        Task<List<Holiday>> FetchHolidaysByCountryCodesAndYearAsync(List<string> countryCodes, int year);
     }
 }

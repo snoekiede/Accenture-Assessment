@@ -61,7 +61,7 @@ app.MapGet("/api/holidays/last-celebrated/{countryCode}", async (
     IHolidayDataService service) =>
 {
     var holidays = await service.GetLastCelebratedHolidaysAsync(countryCode);
-    return Results.Ok(holidays.Select(h => new { h.Date, h.Name,h.LocalName }));
+    return Results.Ok(holidays.Select(h => new { h.Date, h.Name, h.LocalName }));
 })
 .WithName("GetLastCelebratedHolidays")
 .WithOpenApi()
@@ -88,6 +88,30 @@ app.MapGet("/api/holidays/public-count/{year}", async (
 .WithName("GetPublicHolidaysCount")
 .WithOpenApi()
 .WithDescription("Get count of public holidays not falling on weekends for specified countries and year. Results sorted by count in descending order.");
+
+app.MapGet("/api/holidays/shared/{year}", async (
+    int year,
+ string countryCode1,
+    string countryCode2,
+    IHolidayDataService service) =>
+{
+    if (string.IsNullOrWhiteSpace(countryCode1) || string.IsNullOrWhiteSpace(countryCode2))
+    {
+        return Results.BadRequest("Both country codes must be provided.");
+    }
+
+    if (countryCode1.Equals(countryCode2, StringComparison.OrdinalIgnoreCase))
+    {
+        return Results.BadRequest("Country codes must be different.");
+    }
+
+    var sharedHolidays = await service.GetSharedHolidayDatesAsync(year, countryCode1, countryCode2);
+
+    return Results.Ok(sharedHolidays);
+})
+.WithName("GetSharedHolidays")
+.WithOpenApi()
+.WithDescription("Get deduplicated list of dates celebrated in both countries with local names for each country. Results sorted by date.");
 
 app.MapDefaultEndpoints();
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Accenture_Assessment.Contracts.Dtos;
 using Accenture_Assessment.Data.Interfaces.Repositories;
 using Accenture_Assessment.Data.Interfaces.Services;
 using Accenture_Assessment.Data.Models;
@@ -157,7 +158,7 @@ namespace Accenture_Assessment.Data.Services
                     }));
                 }
                 holidays = fetchedHolidays;
-                _holidayRepository.AddHolidaysAsync(holidays);
+                await _holidayRepository.AddHolidaysAsync(holidays);
             }
             
             // Filter out weekends and group by country
@@ -180,6 +181,73 @@ namespace Accenture_Assessment.Data.Services
             _logger.LogInformation("Found holidays for {CountryCount} countries.", result.Count);
 
             return result.OrderByDescending(kvp => kvp.Value).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        public async Task<List<SharedHolidayDto>> GetSharedHolidayDatesAsync(int year, string countryCode1, string countryCode2)
+        {
+            _logger.LogInformation("Fetching shared holidays for year {Year} between {Country1} and {Country2}",
+                year, countryCode1, countryCode2);
+
+            var countryCodes = new List<string> { countryCode1, countryCode2 };
+            var holidays = await _holidayRepository.FetchHolidaysByCountryCodesAndYearAsync(countryCodes, year);
+
+            // If no holidays in database, fetch from API
+            if (!holidays.Any())
+            {
+                _logger.LogInformation("No holidays found locally for year {Year}. Fetching from external API.", year);
+                var fetchedHolidays = new List<Holiday>();
+                foreach (var countryCode in countryCodes)
+                {
+                    var countryHolidays = await _apiClient.GetHolidaysAsync(countryCode, year);
+                    fetchedHolidays.AddRange(countryHolidays.Select(h => new Holiday
+                    {
+                        CountryCode = h.CountryCode,
+                        Date = h.Date,
+                        Name = h.Name,
+                        LocalName = h.LocalName,
+                        Fixed = h.Fixed,
+                        Global = h.Global,
+                        Counties = h.Counties ?? new List<string>(),
+                        LaunchYear = h.LaunchYear,
+                        Type = h.Type,
+                    }));
+                }
+                holidays = fetchedHolidays;
+                await _holidayRepository.AddHolidaysAsync(holidays);
+            }
+
+            // Group by date to find shared dates
+            var holidaysByDate = holidays
+                .GroupBy(h => h.Date.Date)
+                .Where(g => g.Select(h => h.CountryCode).Distinct().Count() == 2) // Both countries must have this date
+                .ToList();
+
+            var sharedHolidays = new List<SharedHolidayDto>();
+
+            foreach (var dateGroup in holidaysByDate)
+            {
+                var country1Holiday = dateGroup.FirstOrDefault(h => h.CountryCode == countryCode1);
+                var country2Holiday = dateGroup.FirstOrDefault(h => h.CountryCode == countryCode2);
+
+                if (country1Holiday != null && country2Holiday != null)
+                {
+                    sharedHolidays.Add(new SharedHolidayDto
+                    {
+                        Date = dateGroup.Key,
+                        Country1Code = countryCode1,
+                        Country1LocalName = country1Holiday.LocalName,
+                        Country2Code = countryCode2,
+                        Country2LocalName = country2Holiday.LocalName
+                    });
+                }
+            }
+
+            var result = sharedHolidays.OrderBy(h => h.Date).ToList();
+
+            _logger.LogInformation("Found {Count} shared holiday dates between {Country1} and {Country2}",
+                result.Count, countryCode1, countryCode2);
+
+            return result;
         }
     }
 }
