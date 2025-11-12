@@ -122,26 +122,37 @@ namespace Accenture_Assessment.Data.Services
 
             var holidays = await holidayRepository.FetchPublicHolidaysByCountryCodesAndYearAsync(countryCodes, year);
 
-            if (!holidays.Any())
-            {
-                logger.LogInformation("No public holidays found locally for year {Year}. Fetching from external API.", year);
+            // Check which countries are missing from the database
+            var countriesWithData = holidays.Select(h => h.CountryCode).Distinct().ToList();
+            var missingCountries = countryCodes.Except(countriesWithData).ToList();
 
-                // Parallel fetching for better performance
-                var tasks = countryCodes.Select(code => apiClient.GetHolidaysAsync(code, year));
+            if (missingCountries.Any())
+            {
+                logger.LogInformation("No public holidays found locally for {MissingCount} countries: {MissingCountries}. Fetching from external API.",
+                    missingCountries.Count, string.Join(", ", missingCountries));
+
+                // Parallel fetching for missing countries only
+                var tasks = missingCountries.Select(code => apiClient.GetHolidaysAsync(code, year));
                 var results = await Task.WhenAll(tasks);
                 var fetchedHolidays = results.SelectMany(dtos => dtos.Select(MapHolidayDtoToEntity)).ToList();
 
-                holidays = fetchedHolidays;
-                await holidayRepository.AddHolidaysAsync(holidays);
+                // Add fetched holidays to the existing list
+                holidays.AddRange(fetchedHolidays);
+
+                // Save the newly fetched holidays to database
+                if (fetchedHolidays.Any())
+                {
+                    await holidayRepository.AddHolidaysAsync(fetchedHolidays);
+                }
             }
 
             // Filter out weekends and group by country
             var result = holidays
-.Where(h => h.Date.DayOfWeek != DayOfWeek.Saturday && h.Date.DayOfWeek != DayOfWeek.Sunday)
-    .GroupBy(h => h.CountryCode)
-           .ToDictionary(g => g.Key, g => g.Count())
-              .OrderByDescending(kvp => kvp.Value)
-        .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                .Where(h => h.Date.DayOfWeek != DayOfWeek.Saturday && h.Date.DayOfWeek != DayOfWeek.Sunday)
+                .GroupBy(h => h.CountryCode)
+                .ToDictionary(g => g.Key, g => g.Count())
+                .OrderByDescending(kvp => kvp.Value)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             // Include countries with 0 holidays
             foreach (var countryCode in countryCodes)
