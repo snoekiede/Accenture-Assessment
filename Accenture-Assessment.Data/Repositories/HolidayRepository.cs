@@ -8,10 +8,6 @@ namespace Accenture_Assessment.Data.Repositories
 {
     public class HolidayRepository(HolidayDbContext context) : IHolidayRepository
     {
-        public async Task<List<Holiday>> FetchHolidays()
-        {
-            return await context.Holidays.ToListAsync();
-        }
 
         public async Task<Holiday> AddHolidayAsync(Holiday holiday)
         {
@@ -24,21 +20,6 @@ namespace Accenture_Assessment.Data.Repositories
         {
             context.Holidays.AddRange(holidays);
             await context.SaveChangesAsync();
-        }
-
-        public async Task<bool> HolidayExistsAsync(string countryCode, int year)
-        {
-           return await context.Holidays.AnyAsync(x=>x.CountryCode==countryCode && x.Date.Year==year);
-        }
-
-        public async Task<List<Holiday>> FetchHolidaysByCountryCodeAsync(string countryCode)
-        {
-            return await context.Holidays.Where(x => x.CountryCode == countryCode).ToListAsync();
-        }
-
-        public async Task<List<Holiday>> FetchHolidaysByCountryCodeAndYearAsync(string countryCode, int year)
-        {
-            return await context.Holidays.Where(x => x.CountryCode == countryCode && x.Date.Year == year).ToListAsync();
         }
 
         public async Task<List<Holiday>> FetchLastCelebratedHolidaysAsync(string countryCode, int count=3)

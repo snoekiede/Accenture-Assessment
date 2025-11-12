@@ -28,7 +28,7 @@ builder.Services.AddHttpClient<IHolidayApiClient, HolidayApiClient>(client =>
     client.DefaultRequestHeaders.Add("User-Agent", "Accenture-Assessment-Exercise");
     client.Timeout = TimeSpan.FromSeconds(30);
 })
-.AddTransientHttpErrorPolicy(policy => 
+.AddTransientHttpErrorPolicy(policy =>
     policy.WaitAndRetryAsync(
         retryCount: nagerApiConfig.GetValue("MaxRetries", 3),
      sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(
@@ -41,8 +41,8 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-   var allowedOrigins = builder.Configuration["AllowedOrigins"]?.Split(',') 
-            ?? ["https://localhost:7148"];
+        var allowedOrigins = builder.Configuration["AllowedOrigins"]?.Split(',')
+                 ?? ["https://localhost:7148"];
 
         policy.WithOrigins(allowedOrigins)
      .AllowAnyMethod()
@@ -57,14 +57,14 @@ builder.Services.AddRateLimiter(options =>
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
         RateLimitPartition.GetFixedWindowLimiter(
 partitionKey: context.User.Identity?.Name ?? context.Request.Headers.Host.ToString(),
-     factory: partition => new FixedWindowRateLimiterOptions
-         {
-      PermitLimit = builder.Configuration.GetValue("RateLimiting:PermitLimit", 100),
-              Window = builder.Configuration.GetValue("RateLimiting:Window", TimeSpan.FromMinutes(1)),
-                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-      QueueLimit = 0
-            }));
-    
+     factory: _ => new FixedWindowRateLimiterOptions
+     {
+         PermitLimit = builder.Configuration.GetValue("RateLimiting:PermitLimit", 100),
+         Window = builder.Configuration.GetValue("RateLimiting:Window", TimeSpan.FromMinutes(1)),
+         QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+         QueueLimit = 0
+     }));
+
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
@@ -72,7 +72,7 @@ partitionKey: context.User.Identity?.Name ?? context.Request.Headers.Host.ToStri
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<HolidayDbContext>("database")
     .AddUrlGroup(
-    new Uri(nagerApiConfig["BaseUrl"] + "AvailableCountries"), 
+    new Uri(nagerApiConfig["BaseUrl"] + "AvailableCountries"),
         name: "nager-api",
         timeout: TimeSpan.FromSeconds(5));
 
@@ -92,16 +92,16 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<HolidayDbContext>();
-    
+
     // Use migrations instead of EnsureCreated
     try
     {
         await dbContext.Database.MigrateAsync();
     }
-catch (Exception ex)
+    catch (Exception ex)
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-  logger.LogError(ex, "An error occurred while migrating the database.");
+        logger.LogError(ex, "An error occurred while migrating the database.");
     }
 }
 
@@ -126,8 +126,8 @@ static bool ValidateYear(int year, IConfiguration config)
 
 static bool ValidateCountryCode(string code)
 {
-    return !string.IsNullOrWhiteSpace(code) && 
-           code.Length == 2 && 
+    return !string.IsNullOrWhiteSpace(code) &&
+           code.Length == 2 &&
       code.All(char.IsUpper);
 }
 
@@ -136,7 +136,7 @@ app.MapGet("/api/countries", async (IHolidayDataService service, bool forceSync 
 {
     var countries = (await service.GetCountriesAsync(forceSync)).Select(x => new CountryDto
     {
-countryCode = x.Code,
+        countryCode = x.Code,
         name = x.Name
     });
     return Results.Ok(countries);
@@ -154,10 +154,10 @@ app.MapGet("/api/holidays/last-celebrated/{countryCode}", async (
         return Results.BadRequest("Invalid country code format. Must be 2 uppercase letters.");
 
     var holidays = await service.GetLastCelebratedHolidaysAsync(countryCode);
-  var result = holidays.Select(h => new HolidayResultDto
+    var result = holidays.Select(h => new HolidayResultDto
     {
- Date = h.Date,
-    Name = h.Name,
+        Date = h.Date,
+        Name = h.Name,
         LocalName = h.LocalName
     });
     return Results.Ok(result);
@@ -190,7 +190,7 @@ app.MapGet("/api/holidays/public-count/{year}", async (
         PublicHolidaysCount = kvp.Value
     });
 
-  return Results.Ok(response);
+    return Results.Ok(response);
 })
 .WithName("GetPublicHolidaysCount")
 .WithOpenApi()
@@ -205,17 +205,17 @@ app.MapGet("/api/holidays/shared/{year}", async (
     IConfiguration config) =>
 {
     if (!ValidateYear(year, config))
-      return Results.BadRequest($"Year must be between {config.GetValue("Validation:MinYear", 1900)} and {config.GetValue("Validation:MaxYear", 2100)}.");
+        return Results.BadRequest($"Year must be between {config.GetValue("Validation:MinYear", 1900)} and {config.GetValue("Validation:MaxYear", 2100)}.");
 
     if (!ValidateCountryCode(countryCode1) || !ValidateCountryCode(countryCode2))
- return Results.BadRequest("Invalid country code format. Must be 2 uppercase letters.");
+        return Results.BadRequest("Invalid country code format. Must be 2 uppercase letters.");
 
     if (countryCode1.Equals(countryCode2, StringComparison.OrdinalIgnoreCase))
         return Results.BadRequest("Country codes must be different.");
 
     var sharedHolidays = await service.GetSharedHolidayDatesAsync(year, countryCode1, countryCode2);
 
- return Results.Ok(sharedHolidays);
+    return Results.Ok(sharedHolidays);
 })
 .WithName("GetSharedHolidays")
 .WithOpenApi()
@@ -224,9 +224,6 @@ app.MapGet("/api/holidays/shared/{year}", async (
     .SetVaryByRouteValue("year")
     .SetVaryByQuery("countryCode1", "countryCode2"));
 
-// Health check endpoint
-// Note: /health endpoint is already registered by AddServiceDefaults()
-// Remove duplicate: app.MapHealthChecks("/health");
 
 app.MapDefaultEndpoints();
 

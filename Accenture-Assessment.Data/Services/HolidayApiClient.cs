@@ -43,24 +43,7 @@ namespace Accenture_Assessment.Data.Services
                 throw;
             }
         }
-        public async Task<List<PublicHolidayCountDto>> GetPublicHolidayCountsAsync(List<string> countryCodes, int year)
-        {
-            try
-            {
-                logger.LogInformation("Fetching public holiday counts for multiple countries in {Year}", year);
-                var countryCodesParam = string.Join(",", countryCodes);
-                var response = await httpClient.GetAsync($"publicholidays/counts/{year}?countryCodes={countryCodesParam}");
-                response.EnsureSuccessStatusCode();
-                var holidayCounts = await response.Content.ReadFromJsonAsync<List<PublicHolidayCountDto>>();
-                return holidayCounts ?? [];
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error fetching public holiday counts for multiple countries in {Year}: {Message}",
-                    year, ex.Message);
-                throw;
-            }
-        }
+
         public async Task<List<HolidayDto>> GetLastCelebratedHolidaysAsync(string countryCode, int count)
         {
             var celebratedHolidays = new List<HolidayDto>();
