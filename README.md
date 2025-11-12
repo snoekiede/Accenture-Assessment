@@ -242,11 +242,11 @@ dotnet test --logger "console;verbosity=detailed"
 
 | Test Suite | Tests | Coverage |
 |------------|-------|----------|
-| **CountryRepositoryTests** | 18 | Unit tests (InMemory) |
+| **CountryRepositoryTests** | 16 | Unit tests (InMemory) |
 | **CountryRepositoryConstraintTests** | 3 | Constraint tests (SQLite) |
-| **HolidayRepositoryTests** | 26 | Unit tests (InMemory) |
-| **HolidayDataServiceTests** | 7 | Unit tests (Mocked) |
-| **Total** | **68** | **100% method coverage** |
+| **HolidayRepositoryTests** | 22 | Unit tests (InMemory) |
+| **HolidayDataServiceTests** | 6 | Unit tests (Mocked) |
+| **Total** | **47** | **100% method coverage** |
 
 ---
 
@@ -503,7 +503,7 @@ This project demonstrates:
 
 - **Lines of Code**: ~5,000
 - **Test Coverage**: 100% method coverage
-- **Total Tests**: 41 (all passing)
+- **Total Tests**: 47 (all passing)
 - **Projects**: 7
 - **External APIs**: 1 (Nager.Date)
 - **Database Tables**: 2 (Countries, Holidays)
