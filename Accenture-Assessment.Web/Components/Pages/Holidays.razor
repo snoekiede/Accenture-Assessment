@@ -35,14 +35,14 @@ else
         <div class="card-body">
             <div class="mb-3">
        <label for="countrySelect" class="form-label">Select a Country:</label>
-        <select id="countrySelect" class="form-select" value="@selectedCountryCode" @onchange="OnCountryChanged">
+        <select id="countrySelect" class="form-select" value="@_selectedCountryCode" @onchange="OnCountryChanged">
         <option value="">--- Select a country ---</option>
        @foreach (var country in _countries)
             {
-       <option value="@country.countryCode">@country.name</option>
+       <option value="@country.CountryCode">@country.Name</option>
         }
  </select>
-    <button class="btn btn-primary mt-2" @onclick="OnGetLastHolidays" disabled="@string.IsNullOrEmpty(selectedCountryCode)">
+    <button class="btn btn-primary mt-2" @onclick="OnGetLastHolidays" disabled="@string.IsNullOrEmpty(_selectedCountryCode)">
    Find holidays
         </button>
     </div>
@@ -75,7 +75,7 @@ else
   <div class="row mb-3">
        <div class="col-md-6">
           <label for="yearInput" class="form-label">Year:</label>
-  <input type="number" id="yearInput" class="form-control" @bind="selectedYear" min="2020" max="2030" />
+  <input type="number" id="yearInput" class="form-control" @bind="_selectedYear" min="2020" max="2030" />
     </div>
     </div>
 
@@ -84,20 +84,20 @@ else
             <select class="form-select" multiple size="10" @onchange="OnCountriesChanged">
             @foreach (var country in _countries)
         {
-   <option value="@country.countryCode">@country.name (@country.countryCode)</option>
+   <option value="@country.CountryCode">@country.Name (@country.CountryCode)</option>
           }
  </select>
            <small class="form-text text-muted">Hold Ctrl (Cmd on Mac) and click to select multiple countries</small>
             </div>
 
-       <button class="btn btn-primary" @onclick="OnGetPublicHolidaysCount" disabled="@(!selectedCountryCodes.Any() || selectedYear == 0)">
+       <button class="btn btn-primary" @onclick="OnGetPublicHolidaysCount" disabled="@(!_selectedCountryCodes.Any() || _selectedYear == 0)">
          Get Public Holidays Count
        </button>
 
             @if (_publicHolidayCounts != null && _publicHolidayCounts.Any())
             {
         <div class="mt-4">
-        <h6>Results for Year @selectedYear (Sorted by Count):</h6>
+        <h6>Results for Year @_selectedYear (Sorted by Count):</h6>
           <table class="table table-striped table-hover">
              <thead>
           <tr>
@@ -112,11 +112,11 @@ else
            int rank = 1;
    foreach (var count in _publicHolidayCounts)
  {
-          var country = _countries.FirstOrDefault(c => c.countryCode == count.CountryCode);
+          var country = _countries.FirstOrDefault(c => c.CountryCode == count.CountryCode);
          <tr>
           <td>@rank</td>
             <td><strong>@count.CountryCode</strong></td>
-    <td>@(country?.name ?? "Unknown")</td>
+    <td>@(country?.Name ?? "Unknown")</td>
 <td>
  <span class="badge bg-primary">@count.PublicHolidaysCount</span>
            </td>
@@ -146,52 +146,52 @@ rank++;
             <div class="row mb-3">
     <div class="col-md-6">
         <label for="sharedYearInput" class="form-label">Year:</label>
-             <input type="number" id="sharedYearInput" class="form-control" @bind="sharedYear" min="2020" max="2030" />
+             <input type="number" id="sharedYearInput" class="form-control" @bind="_sharedYear" min="2020" max="2030" />
 </div>
      </div>
 
      <div class="row mb-3">
            <div class="col-md-6">
        <label for="country1Select" class="form-label">First Country:</label>
-     <select id="country1Select" class="form-select" value="@sharedCountry1" @onchange="OnSharedCountry1Changed">
+     <select id="country1Select" class="form-select" value="@_sharedCountry1" @onchange="OnSharedCountry1Changed">
              <option value="">--- Select first country ---</option>
               @foreach (var country in _countries)
           {
-          <option value="@country.countryCode">@country.name</option>
+          <option value="@country.CountryCode">@country.Name</option>
  }
          </select>
    </div>
               <div class="col-md-6">
   <label for="country2Select" class="form-label">Second Country:</label>
-       <select id="country2Select" class="form-select" value="@sharedCountry2" @onchange="OnSharedCountry2Changed">
+       <select id="country2Select" class="form-select" value="@_sharedCountry2" @onchange="OnSharedCountry2Changed">
    <option value="">--- Select second country ---</option>
      @foreach (var country in _countries)
    {
-          <option value="@country.countryCode">@country.name</option>
+          <option value="@country.CountryCode">@country.Name</option>
          }
  </select>
    </div>
          </div>
 
             <button class="btn btn-primary" @onclick="OnGetSharedHolidays" 
-   disabled="@(string.IsNullOrEmpty(sharedCountry1) || string.IsNullOrEmpty(sharedCountry2) || sharedYear == 0)">
+   disabled="@(string.IsNullOrEmpty(_sharedCountry1) || string.IsNullOrEmpty(_sharedCountry2) || _sharedYear == 0)">
      Find Shared Holidays
      </button>
 
   @if (_sharedHolidays != null && _sharedHolidays.Any())
     {
   <div class="mt-4">
-         <h6>Shared Holidays for Year @sharedYear:</h6>
+         <h6>Shared Holidays for Year @_sharedYear:</h6>
        <p class="text-muted">
-        Comparing <strong>@_countries.FirstOrDefault(c => c.countryCode == sharedCountry1)?.name (@sharedCountry1)</strong> 
-and <strong>@_countries.FirstOrDefault(c => c.countryCode == sharedCountry2)?.name (@sharedCountry2)</strong>
+        Comparing <strong>@_countries.FirstOrDefault(c => c.CountryCode == _sharedCountry1)?.Name (@_sharedCountry1)</strong> 
+and <strong>@_countries.FirstOrDefault(c => c.CountryCode == _sharedCountry2)?.Name (@_sharedCountry2)</strong>
 </p>
  <table class="table table-striped table-hover">
         <thead>
    <tr>
           <th>Date</th>
-      <th>@sharedCountry1 Name</th>
-        <th>@sharedCountry2 Name</th>
+      <th>@_sharedCountry1 Name</th>
+        <th>@_sharedCountry2 Name</th>
        </tr>
          </thead>
            <tbody>
@@ -213,7 +213,7 @@ and <strong>@_countries.FirstOrDefault(c => c.countryCode == sharedCountry2)?.na
    else if (_sharedHolidays != null)
        {
  <div class="alert alert-info mt-3">
- No shared holidays found for these countries in @sharedYear.
+ No shared holidays found for these countries in @_sharedYear.
     </div>
        }
      </div>
@@ -222,18 +222,18 @@ and <strong>@_countries.FirstOrDefault(c => c.countryCode == sharedCountry2)?.na
 
 @code {
     private List<CountryDto>? _countries;
-    private string selectedCountryCode = string.Empty;
+    private string _selectedCountryCode = string.Empty;
     private List<HolidayResultDto>? _results;
 
     // Public holidays count fields
-    private int selectedYear = DateTime.Now.Year;
-    private List<string> selectedCountryCodes = [];
+    private int _selectedYear = DateTime.Now.Year;
+    private List<string> _selectedCountryCodes = [];
     private List<PublicHolidayCountDto>? _publicHolidayCounts;
 
     // Shared holidays fields
-    private int sharedYear = DateTime.Now.Year;
-    private string sharedCountry1 = string.Empty;
-    private string sharedCountry2 = string.Empty;
+    private int _sharedYear = DateTime.Now.Year;
+    private string _sharedCountry1 = string.Empty;
+    private string _sharedCountry2 = string.Empty;
     private List<SharedHolidayDto>? _sharedHolidays;
 
     private string? _errorMessage;
@@ -265,23 +265,23 @@ and <strong>@_countries.FirstOrDefault(c => c.countryCode == sharedCountry2)?.na
 
     private void OnCountryChanged(ChangeEventArgs e)
  {
-    selectedCountryCode = e.Value?.ToString() ?? string.Empty;
+    _selectedCountryCode = e.Value?.ToString() ?? string.Empty;
     }
 
     private async Task OnGetLastHolidays()
     {
-    if (string.IsNullOrEmpty(selectedCountryCode))
+    if (string.IsNullOrEmpty(_selectedCountryCode))
   return;
 
         try
         {
-      _results = await ApiClient.GetAsync<List<HolidayResultDto>>($"api/holidays/last-celebrated/{selectedCountryCode}");
+      _results = await ApiClient.GetAsync<List<HolidayResultDto>>($"api/holidays/last-celebrated/{_selectedCountryCode}");
             _errorMessage = null;
         }
         catch (Exception ex)
    {
     _errorMessage = "Failed to load holidays. Please try again.";
-   Logger.LogError(ex, "Error loading holidays for country {CountryCode}", selectedCountryCode);
+   Logger.LogError(ex, "Error loading holidays for country {CountryCode}", _selectedCountryCode);
     _results = [];
       }
   }
@@ -290,20 +290,20 @@ and <strong>@_countries.FirstOrDefault(c => c.countryCode == sharedCountry2)?.na
   {
         if (e.Value is string[] values)
         {
-            selectedCountryCodes = values.ToList();
+            _selectedCountryCodes = values.ToList();
   }
     }
 
  private async Task OnGetPublicHolidaysCount()
     {
-    if (!selectedCountryCodes.Any() || selectedYear == 0)
+    if (!_selectedCountryCodes.Any() || _selectedYear == 0)
        return;
 
         try
   {
       // Build query string with multiple country codes
-   var queryString = string.Join("&", selectedCountryCodes.Select(c => $"countryCodes={c}"));
-         var url = $"api/holidays/public-count/{selectedYear}?{queryString}";
+   var queryString = string.Join("&", _selectedCountryCodes.Select(c => $"countryCodes={c}"));
+         var url = $"api/holidays/public-count/{_selectedYear}?{queryString}";
 
          _publicHolidayCounts = await ApiClient.GetAsync<List<PublicHolidayCountDto>>(url);
   _errorMessage = null;
@@ -311,27 +311,27 @@ and <strong>@_countries.FirstOrDefault(c => c.countryCode == sharedCountry2)?.na
      catch (Exception ex)
      {
   _errorMessage = "Failed to load public holidays count. Please try again.";
-            Logger.LogError(ex, "Error loading public holidays count for year {Year}", selectedYear);
+            Logger.LogError(ex, "Error loading public holidays count for year {Year}", _selectedYear);
         _publicHolidayCounts = [];
         }
     }
 
     private void OnSharedCountry1Changed(ChangeEventArgs e)
     {
- sharedCountry1 = e.Value?.ToString() ?? string.Empty;
+ _sharedCountry1 = e.Value?.ToString() ?? string.Empty;
     }
 
     private void OnSharedCountry2Changed(ChangeEventArgs e)
     {
-    sharedCountry2 = e.Value?.ToString() ?? string.Empty;
+    _sharedCountry2 = e.Value?.ToString() ?? string.Empty;
   }
 
     private async Task OnGetSharedHolidays()
     {
-        if (string.IsNullOrEmpty(sharedCountry1) || string.IsNullOrEmpty(sharedCountry2) || sharedYear == 0)
+        if (string.IsNullOrEmpty(_sharedCountry1) || string.IsNullOrEmpty(_sharedCountry2) || _sharedYear == 0)
     return;
 
- if (sharedCountry1.Equals(sharedCountry2, StringComparison.OrdinalIgnoreCase))
+ if (_sharedCountry1.Equals(_sharedCountry2, StringComparison.OrdinalIgnoreCase))
 {
             _errorMessage = "Please select two different countries.";
    return;
@@ -339,14 +339,14 @@ and <strong>@_countries.FirstOrDefault(c => c.countryCode == sharedCountry2)?.na
 
 try
    {
-          var url = $"api/holidays/shared/{sharedYear}?countryCode1={sharedCountry1}&countryCode2={sharedCountry2}";
+          var url = $"api/holidays/shared/{_sharedYear}?countryCode1={_sharedCountry1}&countryCode2={_sharedCountry2}";
     _sharedHolidays = await ApiClient.GetAsync<List<SharedHolidayDto>>(url);
             _errorMessage = null;
         }
         catch (Exception ex)
      {
      _errorMessage = "Failed to load shared holidays. Please try again.";
-     Logger.LogError(ex, "Error loading shared holidays for {Country1} and {Country2} in {Year}", sharedCountry1, sharedCountry2, sharedYear);
+     Logger.LogError(ex, "Error loading shared holidays for {Country1} and {Country2} in {Year}", _sharedCountry1, _sharedCountry2, _sharedYear);
      _sharedHolidays = [];
         }
     }

@@ -96,7 +96,7 @@ public class HolidayRepositoryTests
             Type = HolidayType.Public,
             Fixed = true,
             Global = true,
-            Counties = new List<string> { "County1", "County2" },
+            Counties = ["County1", "County2"],
             LaunchYear = 1776
         };
 
@@ -123,7 +123,7 @@ public class HolidayRepositoryTests
         // Arrange
         var holidays = new List<Holiday>
         {
-            new Holiday
+            new()
             {
                 CountryCode = "US",
                 Date = new DateTime(2024, 12, 25),
@@ -131,7 +131,7 @@ public class HolidayRepositoryTests
                 LocalName = "Christmas Day",
                 Type = HolidayType.Public
             },
-            new Holiday
+            new()
             {
                 CountryCode = "US",
                 Date = new DateTime(2024, 7, 4),
@@ -139,7 +139,7 @@ public class HolidayRepositoryTests
                 LocalName = "Independence Day",
                 Type = HolidayType.Public
             },
-            new Holiday
+            new()
             {
                 CountryCode = "US",
                 Date = new DateTime(2024, 1, 1),
@@ -193,7 +193,7 @@ public class HolidayRepositoryTests
         await _dbContext.SaveChangesAsync();
 
         // Act
-        var result = await _repository.FetchLastCelebratedHolidaysAsync("US", 3);
+        var result = await _repository.FetchLastCelebratedHolidaysAsync("US");
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(3));
@@ -218,7 +218,7 @@ public class HolidayRepositoryTests
         await _dbContext.SaveChangesAsync();
 
         // Act
-        var result = await _repository.FetchLastCelebratedHolidaysAsync("US", 3);
+        var result = await _repository.FetchLastCelebratedHolidaysAsync("US");
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(2));
@@ -243,8 +243,8 @@ public class HolidayRepositoryTests
         await _dbContext.SaveChangesAsync();
 
         // Act
-        var usHolidays = await _repository.FetchLastCelebratedHolidaysAsync("US", 3);
-        var caHolidays = await _repository.FetchLastCelebratedHolidaysAsync("CA", 3);
+        var usHolidays = await _repository.FetchLastCelebratedHolidaysAsync("US");
+        var caHolidays = await _repository.FetchLastCelebratedHolidaysAsync("CA");
 
         // Assert
         Assert.That(usHolidays, Has.Count.EqualTo(2));
@@ -268,7 +268,7 @@ public class HolidayRepositoryTests
         await _dbContext.SaveChangesAsync();
 
         // Act
-        var result = await _repository.FetchLastCelebratedHolidaysAsync("GB", 3);
+        var result = await _repository.FetchLastCelebratedHolidaysAsync("GB");
 
         // Assert
         Assert.That(result, Is.Empty);
@@ -284,8 +284,8 @@ public class HolidayRepositoryTests
         // Arrange
         var holidays = new List<Holiday>
         {
-            CreateHoliday("US", new DateTime(2024, 12, 25), "Christmas", HolidayType.Public),
-            CreateHoliday("US", new DateTime(2024, 1, 1), "New Year", HolidayType.Public),
+            CreateHoliday("US", new DateTime(2024, 12, 25), "Christmas"),
+            CreateHoliday("US", new DateTime(2024, 1, 1), "New Year"),
             CreateHoliday("US", new DateTime(2024, 2, 14), "Valentine's Day", HolidayType.Observance),
             CreateHoliday("US", new DateTime(2024, 10, 31), "Halloween", HolidayType.Observance)
         };
@@ -294,7 +294,7 @@ public class HolidayRepositoryTests
         await _dbContext.SaveChangesAsync();
 
         // Act
-        var result = await _repository.FetchPublicHolidaysByCountryCodesAndYearAsync(new List<string> { "US" }, 2024);
+        var result = await _repository.FetchPublicHolidaysByCountryCodesAndYearAsync(["US"], 2024);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(2));
@@ -307,16 +307,16 @@ public class HolidayRepositoryTests
         // Arrange
         var holidays = new List<Holiday>
         {
-            CreateHoliday("US", new DateTime(2024, 12, 25), "Christmas 2024", HolidayType.Public),
-            CreateHoliday("US", new DateTime(2023, 12, 25), "Christmas 2023", HolidayType.Public),
-            CreateHoliday("US", new DateTime(2025, 12, 25), "Christmas 2025", HolidayType.Public)
+            CreateHoliday("US", new DateTime(2024, 12, 25), "Christmas 2024"),
+            CreateHoliday("US", new DateTime(2023, 12, 25), "Christmas 2023"),
+            CreateHoliday("US", new DateTime(2025, 12, 25), "Christmas 2025")
         };
 
         await _dbContext.Holidays.AddRangeAsync(holidays);
         await _dbContext.SaveChangesAsync();
 
         // Act
-        var result = await _repository.FetchPublicHolidaysByCountryCodesAndYearAsync(new List<string> { "US" }, 2024);
+        var result = await _repository.FetchPublicHolidaysByCountryCodesAndYearAsync(["US"], 2024);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(1));
@@ -329,10 +329,10 @@ public class HolidayRepositoryTests
         // Arrange
         var holidays = new List<Holiday>
         {
-            CreateHoliday("US", new DateTime(2024, 12, 25), "US Christmas", HolidayType.Public),
-            CreateHoliday("CA", new DateTime(2024, 12, 25), "CA Christmas", HolidayType.Public),
-            CreateHoliday("GB", new DateTime(2024, 12, 25), "GB Christmas", HolidayType.Public),
-            CreateHoliday("FR", new DateTime(2024, 12, 25), "FR Christmas", HolidayType.Public)
+            CreateHoliday("US", new DateTime(2024, 12, 25), "US Christmas"),
+            CreateHoliday("CA", new DateTime(2024, 12, 25), "CA Christmas"),
+            CreateHoliday("GB", new DateTime(2024, 12, 25), "GB Christmas"),
+            CreateHoliday("FR", new DateTime(2024, 12, 25), "FR Christmas")
         };
 
         await _dbContext.Holidays.AddRangeAsync(holidays);
@@ -340,7 +340,7 @@ public class HolidayRepositoryTests
 
         // Act
         var result = await _repository.FetchPublicHolidaysByCountryCodesAndYearAsync(
-            new List<string> { "US", "CA", "GB" }, 2024);
+            ["US", "CA", "GB"], 2024);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(3));
@@ -360,7 +360,7 @@ public class HolidayRepositoryTests
         // Arrange
         var holidays = new List<Holiday>
         {
-            CreateHoliday("US", new DateTime(2024, 12, 25), "Christmas", HolidayType.Public),
+            CreateHoliday("US", new DateTime(2024, 12, 25), "Christmas"),
             CreateHoliday("US", new DateTime(2024, 2, 14), "Valentine's Day", HolidayType.Observance),
             CreateHoliday("US", new DateTime(2024, 10, 31), "Halloween", HolidayType.Observance)
         };
@@ -369,7 +369,7 @@ public class HolidayRepositoryTests
         await _dbContext.SaveChangesAsync();
 
         // Act
-        var result = await _repository.FetchHolidaysByCountryCodesAndYearAsync(new List<string> { "US" }, 2024);
+        var result = await _repository.FetchHolidaysByCountryCodesAndYearAsync(["US"], 2024);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(3));
@@ -383,10 +383,10 @@ public class HolidayRepositoryTests
         // Arrange
         var holidays = new List<Holiday>
         {
-            CreateHoliday("US", new DateTime(2024, 12, 25), "US 2024", HolidayType.Public),
-            CreateHoliday("US", new DateTime(2023, 12, 25), "US 2023", HolidayType.Public),
-            CreateHoliday("CA", new DateTime(2024, 12, 25), "CA 2024", HolidayType.Public),
-            CreateHoliday("CA", new DateTime(2023, 12, 25), "CA 2023", HolidayType.Public)
+            CreateHoliday("US", new DateTime(2024, 12, 25), "US 2024"),
+            CreateHoliday("US", new DateTime(2023, 12, 25), "US 2023"),
+            CreateHoliday("CA", new DateTime(2024, 12, 25), "CA 2024"),
+            CreateHoliday("CA", new DateTime(2023, 12, 25), "CA 2023")
         };
 
         await _dbContext.Holidays.AddRangeAsync(holidays);
@@ -394,7 +394,7 @@ public class HolidayRepositoryTests
 
         // Act
         var result = await _repository.FetchHolidaysByCountryCodesAndYearAsync(
-            new List<string> { "US", "CA" }, 2024);
+            ["US", "CA"], 2024);
 
         // Assert
         Assert.That(result, Has.Count.EqualTo(2));
@@ -515,7 +515,7 @@ public class HolidayRepositoryTests
         await _dbContext.SaveChangesAsync();
 
         // Act
-        var result = await _repository.FetchHolidaysByCountryCodesAndYearAsync(new List<string> { "US" }, 2024);
+        var result = await _repository.FetchHolidaysByCountryCodesAndYearAsync(["US"], 2024);
         var exists = await _repository.HolidayExistsAsync("US", new DateTime(2024, 6, 15), "Holiday 167");
 
         // Assert
@@ -560,7 +560,7 @@ public class HolidayRepositoryTests
             Type = type,
             Fixed = true,
             Global = true,
-            Counties = new List<string>()
+            Counties = []
         };
     }
 

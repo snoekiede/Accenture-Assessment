@@ -47,9 +47,9 @@ public class CountryRepositoryTests
         // Arrange
         var countries = new List<Country>
         {
-            new Country { Code = "US", Name = "United States" },
-            new Country { Code = "CA", Name = "Canada" },
-            new Country { Code = "GB", Name = "United Kingdom" }
+            new() { Code = "US", Name = "United States" },
+            new() { Code = "CA", Name = "Canada" },
+            new() { Code = "GB", Name = "United Kingdom" }
         };
 
         await _dbContext.Countries.AddRangeAsync(countries);
@@ -69,10 +69,10 @@ public class CountryRepositoryTests
         // Arrange
         var countries = new List<Country>
         {
-            new Country { Code = "US", Name = "United States" },
-            new Country { Code = "AT", Name = "Austria" },
-            new Country { Code = "GB", Name = "United Kingdom" },
-            new Country { Code = "CA", Name = "Canada" }
+            new() { Code = "US", Name = "United States" },
+            new() { Code = "AT", Name = "Austria" },
+            new() { Code = "GB", Name = "United Kingdom" },
+            new() { Code = "CA", Name = "Canada" }
         };
 
         await _dbContext.Countries.AddRangeAsync(countries);
@@ -205,9 +205,9 @@ public class CountryRepositoryTests
         // Arrange
         var countries = new List<Country>
         {
-            new Country { Code = "US", Name = "United States" },
-            new Country { Code = "CA", Name = "Canada" },
-            new Country { Code = "GB", Name = "United Kingdom" }
+            new() { Code = "US", Name = "United States" },
+            new() { Code = "CA", Name = "Canada" },
+            new() { Code = "GB", Name = "United Kingdom" }
         };
 
         await _dbContext.Countries.AddRangeAsync(countries);

@@ -39,8 +39,8 @@ public class HolidayDataServiceTests
         // Arrange
         var apiCountries = new List<CountryDto>
         {
-            new CountryDto { countryCode = "US", name = "United States" },
-            new CountryDto { countryCode = "CA", name = "Canada" }
+            new() { CountryCode = "US", Name = "United States" },
+            new() { CountryCode = "CA", Name = "Canada" }
         };
         
         _mockApiClient.Setup(x => x.GetCountriesAsync())
@@ -71,7 +71,7 @@ public class HolidayDataServiceTests
         // Set up 3 holidays so the service doesn't need to sync more
         var apiHolidays = new List<HolidayDto>
         {
-            new HolidayDto 
+            new()
             { 
                 CountryCode = "US", 
                 Date = now.AddDays(-10), 
@@ -79,7 +79,7 @@ public class HolidayDataServiceTests
                 LocalName = "Holiday 1",
                 Type = HolidayType.Public
             },
-            new HolidayDto 
+            new()
             { 
                 CountryCode = "US", 
                 Date = now.AddDays(-20), 
@@ -87,7 +87,7 @@ public class HolidayDataServiceTests
                 LocalName = "Holiday 2",
                 Type = HolidayType.Public
             },
-            new HolidayDto 
+            new()
             { 
                 CountryCode = "US", 
                 Date = now.AddDays(-30), 
@@ -99,7 +99,7 @@ public class HolidayDataServiceTests
         
         // Database returns empty
         _mockHolidayRepo.Setup(x => x.FetchLastCelebratedHolidaysAsync(countryCode, 3))
-            .ReturnsAsync(new List<Holiday>());
+            .ReturnsAsync([]);
         
         // API returns data (will be called once)
         _mockApiClient.Setup(x => x.GetLastCelebratedHolidaysAsync(countryCode, It.IsAny<int>()))
@@ -114,7 +114,7 @@ public class HolidayDataServiceTests
             .ReturnsAsync((Holiday h) => { h.Id = 1; return h; });
         
         // Act
-        var result = await _service.GetLastCelebratedHolidaysAsync(countryCode, 3);
+        var result = await _service.GetLastCelebratedHolidaysAsync(countryCode);
         
         // Assert
         Assert.That(result, Has.Count.EqualTo(3));
@@ -133,7 +133,7 @@ public class HolidayDataServiceTests
         var holidays = new List<Holiday>
         {
             // Saturday - should be excluded
-            new Holiday 
+            new()
             { 
                 CountryCode = "US", 
                 Date = new DateTime(2024, 12, 21), 
@@ -142,7 +142,7 @@ public class HolidayDataServiceTests
                 Type = HolidayType.Public 
             },
             // Sunday - should be excluded
-            new Holiday 
+            new()
             { 
                 CountryCode = "US", 
                 Date = new DateTime(2024, 12, 22), 
@@ -151,7 +151,7 @@ public class HolidayDataServiceTests
                 Type = HolidayType.Public 
             },
             // Wednesday - should be counted
-            new Holiday 
+            new()
             { 
                 CountryCode = "US", 
                 Date = new DateTime(2024, 12, 25), 
@@ -160,7 +160,7 @@ public class HolidayDataServiceTests
                 Type = HolidayType.Public 
             },
             // Thursday - should be counted
-            new Holiday 
+            new()
             { 
                 CountryCode = "US", 
                 Date = new DateTime(2024, 7, 4), 
@@ -175,7 +175,7 @@ public class HolidayDataServiceTests
             .ReturnsAsync(holidays);
         
         // Act
-        var result = await _service.GetPublicHolidaysCountByCountryAsync(2024, new List<string> { "US" });
+        var result = await _service.GetPublicHolidaysCountByCountryAsync(2024, ["US"]);
         
         // Assert - Only weekday holidays counted
         Assert.That(result["US"], Is.EqualTo(2));
@@ -187,12 +187,12 @@ public class HolidayDataServiceTests
         // Arrange
         var holidays = new List<Holiday>
         {
-            new Holiday { CountryCode = "US", Date = new DateTime(2024, 1, 1), Name = "NY", LocalName = "NY", Type = HolidayType.Public },
-            new Holiday { CountryCode = "US", Date = new DateTime(2024, 7, 4), Name = "July4", LocalName = "July4", Type = HolidayType.Public },
-            new Holiday { CountryCode = "CA", Date = new DateTime(2024, 1, 1), Name = "NY", LocalName = "NY", Type = HolidayType.Public },
-            new Holiday { CountryCode = "GB", Date = new DateTime(2024, 12, 25), Name = "Xmas", LocalName = "Xmas", Type = HolidayType.Public },
-            new Holiday { CountryCode = "GB", Date = new DateTime(2024, 1, 1), Name = "NY", LocalName = "NY", Type = HolidayType.Public },
-            new Holiday { CountryCode = "GB", Date = new DateTime(2024, 12, 26), Name = "Boxing", LocalName = "Boxing", Type = HolidayType.Public }
+            new() { CountryCode = "US", Date = new DateTime(2024, 1, 1), Name = "NY", LocalName = "NY", Type = HolidayType.Public },
+            new() { CountryCode = "US", Date = new DateTime(2024, 7, 4), Name = "July4", LocalName = "July4", Type = HolidayType.Public },
+            new() { CountryCode = "CA", Date = new DateTime(2024, 1, 1), Name = "NY", LocalName = "NY", Type = HolidayType.Public },
+            new() { CountryCode = "GB", Date = new DateTime(2024, 12, 25), Name = "Xmas", LocalName = "Xmas", Type = HolidayType.Public },
+            new() { CountryCode = "GB", Date = new DateTime(2024, 1, 1), Name = "NY", LocalName = "NY", Type = HolidayType.Public },
+            new() { CountryCode = "GB", Date = new DateTime(2024, 12, 26), Name = "Boxing", LocalName = "Boxing", Type = HolidayType.Public }
         };
         
         _mockHolidayRepo.Setup(x => x.FetchPublicHolidaysByCountryCodesAndYearAsync(
@@ -200,8 +200,8 @@ public class HolidayDataServiceTests
             .ReturnsAsync(holidays);
         
         // Act
-        var result = await _service.GetPublicHolidaysCountByCountryAsync(2024, 
-            new List<string> { "US", "CA", "GB" });
+        var result = await _service.GetPublicHolidaysCountByCountryAsync(2024,
+            ["US", "CA", "GB"]);
         
         // Assert - Sorted descending: GB(3), US(2), CA(1)
         var resultList = result.ToList();
@@ -220,14 +220,14 @@ public class HolidayDataServiceTests
         var holidays = new List<Holiday>
         {
             // Shared date
-            new Holiday { CountryCode = "US", Date = new DateTime(2024, 12, 25), Name = "Christmas", LocalName = "Christmas Day" },
-            new Holiday { CountryCode = "CA", Date = new DateTime(2024, 12, 25), Name = "Christmas", LocalName = "Noël" },
+            new() { CountryCode = "US", Date = new DateTime(2024, 12, 25), Name = "Christmas", LocalName = "Christmas Day" },
+            new() { CountryCode = "CA", Date = new DateTime(2024, 12, 25), Name = "Christmas", LocalName = "Noël" },
             
             // Not shared (only US)
-            new Holiday { CountryCode = "US", Date = new DateTime(2024, 7, 4), Name = "Independence", LocalName = "Independence Day" },
+            new() { CountryCode = "US", Date = new DateTime(2024, 7, 4), Name = "Independence", LocalName = "Independence Day" },
             
             // Not shared (only CA)
-            new Holiday { CountryCode = "CA", Date = new DateTime(2024, 7, 1), Name = "Canada Day", LocalName = "Fête du Canada" }
+            new() { CountryCode = "CA", Date = new DateTime(2024, 7, 1), Name = "Canada Day", LocalName = "Fête du Canada" }
         };
         
         _mockHolidayRepo.Setup(x => x.FetchHolidaysByCountryCodesAndYearAsync(
@@ -254,7 +254,7 @@ public class HolidayDataServiceTests
         
         var apiHolidays = new List<HolidayDto>
         {
-            new HolidayDto 
+            new()
             { 
                 CountryCode = countryCode, 
                 Date = date, 
@@ -272,7 +272,7 @@ public class HolidayDataServiceTests
             .ReturnsAsync(true);
         
         // Act
-        var result = await _service.SyncLastCelebratedHolidaysAsync(countryCode, 3);
+        var result = await _service.SyncLastCelebratedHolidaysAsync(countryCode);
         
         // Assert - No holidays added (all skipped)
         Assert.That(result, Is.Empty);

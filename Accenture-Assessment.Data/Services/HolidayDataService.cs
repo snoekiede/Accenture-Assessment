@@ -23,7 +23,7 @@ namespace Accenture_Assessment.Data.Services
                 LocalName = dto.LocalName,
                 Fixed = dto.Fixed,
                 Global = dto.Global,
-                Counties = dto.Counties ?? new List<string>(),
+                Counties = dto.Counties ?? [],
                 LaunchYear = dto.LaunchYear,
                 Type = dto.Type
             };
@@ -37,20 +37,20 @@ namespace Accenture_Assessment.Data.Services
 
             foreach (var country in countries)
             {
-                if (await countryRepository.CountryExistsAsync(country.countryCode))
+                if (await countryRepository.CountryExistsAsync(country.CountryCode))
                 {
-                    logger.LogInformation("Country {CountryCode} already exists. Skipping.", country.countryCode);
+                    logger.LogInformation("Country {CountryCode} already exists. Skipping.", country.CountryCode);
                     continue;
                 }
 
                 var addedCountry = new Country
                 {
-                    Code = country.countryCode,
-                    Name = country.name
+                    Code = country.CountryCode,
+                    Name = country.Name
                 };
                 await countryRepository.AddCountryAsync(addedCountry);
                 syncedCountries.Add(addedCountry);
-                logger.LogInformation("Added new country {CountryCode} - {CountryName}.", country.countryCode, country.name);
+                logger.LogInformation("Added new country {CountryCode} - {CountryName}.", country.CountryCode, country.Name);
 
             }
             return syncedCountries;

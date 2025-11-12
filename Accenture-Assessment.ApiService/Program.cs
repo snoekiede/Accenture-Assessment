@@ -136,8 +136,8 @@ app.MapGet("/api/countries", async (IHolidayDataService service, bool forceSync 
 {
     var countries = (await service.GetCountriesAsync(forceSync)).Select(x => new CountryDto
     {
-        countryCode = x.Code,
-        name = x.Name
+        CountryCode = x.Code,
+        Name = x.Name
     });
     return Results.Ok(countries);
 })
