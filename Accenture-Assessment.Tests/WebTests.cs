@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
+using Accenture_Assessment.Contracts.Dtos;
 
 namespace Accenture_Assessment.Tests;
 
@@ -343,33 +344,4 @@ public class WebTests
         Assert.That(tooManyRequestsResponses, Is.GreaterThan(0), 
             "Rate limiting should reject some requests when limit is exceeded");
     }
-}
-
-// DTOs for test deserialization
-public record CountryDto
-{
-    public string countryCode { get; set; } = string.Empty;
-    public string name { get; set; } = string.Empty;
-}
-
-public record HolidayResultDto
-{
-    public DateTime Date { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string LocalName { get; set; } = string.Empty;
-}
-
-public record PublicHolidayCountDto
-{
-    public string CountryCode { get; set; } = string.Empty;
-    public int PublicHolidaysCount { get; set; }
-}
-
-public record SharedHolidayDto
-{
-    public DateTime Date { get; set; }
-    public string Country1Code { get; set; } = string.Empty;
-    public string Country1LocalName { get; set; } = string.Empty;
-    public string Country2Code { get; set; } = string.Empty;
-    public string Country2LocalName { get; set; } = string.Empty;
 }
