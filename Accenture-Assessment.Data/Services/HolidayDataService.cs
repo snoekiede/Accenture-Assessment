@@ -23,7 +23,7 @@ namespace Accenture_Assessment.Data.Services
                 LocalName = dto.LocalName,
                 Fixed = dto.Fixed,
                 Global = dto.Global,
-                Counties = dto.Counties ?? [],
+                Counties = dto.Counties,
                 LaunchYear = dto.LaunchYear,
                 Type = dto.Type
             };
@@ -79,7 +79,7 @@ namespace Accenture_Assessment.Data.Services
                 // Fix: Check for specific holiday, not just year
                 if (await holidayRepository.HolidayExistsAsync(countryCode, holiday.Date, holiday.Name))
                 {
-                    logger.LogInformation("Holiday {HolidayName} on {HolidayDate} for country {CountryCode} already exists. Skipping.", 
+                    logger.LogInformation("Holiday {HolidayName} on {HolidayDate} for country {CountryCode} already exists. Skipping.",
                         holiday.Name, holiday.Date, countryCode);
                     continue;
                 }
@@ -87,7 +87,7 @@ namespace Accenture_Assessment.Data.Services
                 var addedHoliday = MapHolidayDtoToEntity(holiday);
                 await holidayRepository.AddHolidayAsync(addedHoliday);
                 syncedHolidays.Add(addedHoliday);
-                logger.LogInformation("Added new holiday {HolidayName} on {HolidayDate} for country {CountryCode}.", 
+                logger.LogInformation("Added new holiday {HolidayName} on {HolidayDate} for country {CountryCode}.",
                     holiday.LocalName, holiday.Date, countryCode);
             }
             return syncedHolidays;
@@ -125,7 +125,7 @@ namespace Accenture_Assessment.Data.Services
             if (!holidays.Any())
             {
                 logger.LogInformation("No public holidays found locally for year {Year}. Fetching from external API.", year);
-    
+
                 // Parallel fetching for better performance
                 var tasks = countryCodes.Select(code => apiClient.GetHolidaysAsync(code, year));
                 var results = await Task.WhenAll(tasks);
@@ -135,7 +135,7 @@ namespace Accenture_Assessment.Data.Services
                 await holidayRepository.AddHolidaysAsync(holidays);
             }
 
-      // Filter out weekends and group by country
+            // Filter out weekends and group by country
             var result = holidays
 .Where(h => h.Date.DayOfWeek != DayOfWeek.Saturday && h.Date.DayOfWeek != DayOfWeek.Sunday)
     .GroupBy(h => h.CountryCode)
@@ -144,39 +144,39 @@ namespace Accenture_Assessment.Data.Services
         .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
             // Include countries with 0 holidays
-       foreach (var countryCode in countryCodes)
-       {
-           result.TryAdd(countryCode, 0);
-       }
+            foreach (var countryCode in countryCodes)
+            {
+                result.TryAdd(countryCode, 0);
+            }
 
-       logger.LogInformation("Found holidays for {CountryCount} countries.", result.Count);
+            logger.LogInformation("Found holidays for {CountryCount} countries.", result.Count);
 
             return result.OrderByDescending(kvp => kvp.Value).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-    }
+        }
 
         public async Task<List<SharedHolidayDto>> GetSharedHolidayDatesAsync(int year, string countryCode1, string countryCode2)
-{
-   logger.LogInformation("Fetching shared holidays for year {Year} between {Country1} and {Country2}",
-   year, countryCode1, countryCode2);
+        {
+            logger.LogInformation("Fetching shared holidays for year {Year} between {Country1} and {Country2}",
+            year, countryCode1, countryCode2);
 
-     var countryCodes = new List<string> { countryCode1, countryCode2 };
-          var holidays = await holidayRepository.FetchHolidaysByCountryCodesAndYearAsync(countryCodes, year);
+            var countryCodes = new List<string> { countryCode1, countryCode2 };
+            var holidays = await holidayRepository.FetchHolidaysByCountryCodesAndYearAsync(countryCodes, year);
 
             // If no holidays in database, fetch from API
-      if (!holidays.Any())
-       {
-          logger.LogInformation("No holidays found locally for year {Year}. Fetching from external API.", year);
-                
-             // Parallel fetching
-      var tasks = countryCodes.Select(code => apiClient.GetHolidaysAsync(code, year));
-             var results = await Task.WhenAll(tasks);
-        var fetchedHolidays = results.SelectMany(dtos => dtos.Select(MapHolidayDtoToEntity)).ToList();
+            if (!holidays.Any())
+            {
+                logger.LogInformation("No holidays found locally for year {Year}. Fetching from external API.", year);
 
-        holidays = fetchedHolidays;
-     await holidayRepository.AddHolidaysAsync(holidays);
-       }
+                // Parallel fetching
+                var tasks = countryCodes.Select(code => apiClient.GetHolidaysAsync(code, year));
+                var results = await Task.WhenAll(tasks);
+                var fetchedHolidays = results.SelectMany(dtos => dtos.Select(MapHolidayDtoToEntity)).ToList();
 
-  // Group by date to find shared dates
+                holidays = fetchedHolidays;
+                await holidayRepository.AddHolidaysAsync(holidays);
+            }
+
+            // Group by date to find shared dates
             var holidaysByDate = holidays
                 .GroupBy(h => h.Date.Date)
       .Where(g => g.Select(h => h.CountryCode).Distinct().Count() == 2) // Both countries must have this date
@@ -184,30 +184,30 @@ namespace Accenture_Assessment.Data.Services
 
             var sharedHolidays = new List<SharedHolidayDto>();
 
-  foreach (var dateGroup in holidaysByDate)
-     {
- var country1Holiday = dateGroup.FirstOrDefault(h => h.CountryCode == countryCode1);
-  var country2Holiday = dateGroup.FirstOrDefault(h => h.CountryCode == countryCode2);
+            foreach (var dateGroup in holidaysByDate)
+            {
+                var country1Holiday = dateGroup.FirstOrDefault(h => h.CountryCode == countryCode1);
+                var country2Holiday = dateGroup.FirstOrDefault(h => h.CountryCode == countryCode2);
 
-    if (country1Holiday != null && country2Holiday != null)
-    {
-           sharedHolidays.Add(new SharedHolidayDto
-        {
-        Date = dateGroup.Key,
-   Country1Code = countryCode1,
-           Country1LocalName = country1Holiday.LocalName,
-   Country2Code = countryCode2,
-   Country2LocalName = country2Holiday.LocalName
-             });
-             }
+                if (country1Holiday != null && country2Holiday != null)
+                {
+                    sharedHolidays.Add(new SharedHolidayDto
+                    {
+                        Date = dateGroup.Key,
+                        Country1Code = countryCode1,
+                        Country1LocalName = country1Holiday.LocalName,
+                        Country2Code = countryCode2,
+                        Country2LocalName = country2Holiday.LocalName
+                    });
+                }
             }
 
-      var result = sharedHolidays.OrderBy(h => h.Date).ToList();
+            var result = sharedHolidays.OrderBy(h => h.Date).ToList();
 
-         logger.LogInformation("Found {Count} shared holiday dates between {Country1} and {Country2}",
-        result.Count, countryCode1, countryCode2);
+            logger.LogInformation("Found {Count} shared holiday dates between {Country1} and {Country2}",
+           result.Count, countryCode1, countryCode2);
 
-  return result;
-     }
+            return result;
+        }
     }
 }
