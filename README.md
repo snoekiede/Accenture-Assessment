@@ -2,7 +2,7 @@
 
 A production-ready .NET 9 application built with Blazor Server, ASP.NET Core Minimal APIs, and .NET Aspire for cloud-native orchestration. This application provides comprehensive holiday information across multiple countries with intelligent caching, rate limiting, and robust error handling.
 
-## ?? Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
@@ -20,7 +20,7 @@ A production-ready .NET 9 application built with Blazor Server, ASP.NET Core Min
 
 ---
 
-## ?? Overview
+## Overview
 
 This application demonstrates enterprise-grade .NET development practices by providing a holiday information service that:
 
@@ -39,53 +39,31 @@ This application demonstrates enterprise-grade .NET development practices by pro
 
 ---
 
-## ? Features
+## Features
 
 ### Production-Ready Features
 
-- ? **CORS Configuration** - Secure cross-origin resource sharing
-- ? **Rate Limiting** - 100 requests per minute per client
-- ? **Output Caching** - Redis-backed distributed caching with strategic expiration
-- ? **Input Validation** - Comprehensive request validation with descriptive errors
-- ? **Retry Policies** - Exponential backoff for external API calls
-- ? **Health Checks** - Database and external API monitoring
-- ? **Structured Logging** - Context-rich log messages
-- ? **Database Migrations** - EF Core migrations for schema versioning
-- ? **Error Handling** - Graceful error handling with proper HTTP status codes
-- ? **OpenAPI/Swagger** - Comprehensive API documentation
+- **CORS Configuration** - Secure cross-origin resource sharing
+- **Rate Limiting** - 100 requests per minute per client
+- **Output Caching** - Redis-backed distributed caching with strategic expiration
+- **Input Validation** - Comprehensive request validation with descriptive errors
+- **Retry Policies** - Exponential backoff for external API calls
+- **Health Checks** - Database and external API monitoring
+- **Structured Logging** - Context-rich log messages
+- **Database Migrations** - EF Core migrations for schema versioning
+- **Error Handling** - Graceful error handling with proper HTTP status codes
+- **OpenAPI/Swagger** - Comprehensive API documentation
 
 ### Business Features
 
-- ?? **Multi-Country Support** - Access holiday data for 100+ countries
-- ?? **Historical Data** - Query past and future holidays
-- ?? **Smart Filtering** - Filter by date, country, and holiday type
-- ?? **Comparative Analysis** - Compare holiday counts across countries
-- ?? **Responsive UI** - Modern Blazor Server interface with real-time updates
+- **Multi-Country Support** - Access holiday data for 100+ countries
+- **Historical Data** - Query past and future holidays
+- **Smart Filtering** - Filter by date, country, and holiday type
+- **Comparative Analysis** - Compare holiday counts across countries
+- **Responsive UI** - Modern Blazor Server interface with real-time updates
 
 ---
 
-## ??? Architecture
-
-```
-???????????????????????????????????????????????????????????????
-?                      .NET Aspire AppHost                     ?
-?                    (Orchestration Layer)                     ?
-???????????????????????????????????????????????????????????????
-                              ?
-                              ?????????????????????????
-                              ?                       ?
-                    ???????????????????    ????????????????????
-                    ?   Blazor Web    ?    ?   API Service    ?
-                    ?   (Frontend)    ??????  (Backend API)   ?
-                    ???????????????????    ????????????????????
-                              ?                       ?
-                              ?                       ???????????????
-                              ?                       ?             ?
-                    ???????????????????    ????????????????   ????????????
-                    ?  Redis Cache    ?    ?  SQL Server  ?   ? External ?
-                    ?  (Distributed)  ?    ?  (Database)  ?   ?   API    ?
-                    ???????????????????    ????????????????   ????????????
-```
 
 ### Project Structure
 
@@ -99,7 +77,7 @@ This application demonstrates enterprise-grade .NET development practices by pro
 
 ---
 
-## ??? Technology Stack
+## Technology Stack
 
 | Category | Technology | Version |
 |----------|-----------|---------|
@@ -117,7 +95,7 @@ This application demonstrates enterprise-grade .NET development practices by pro
 
 ---
 
-## ?? Prerequisites
+## Prerequisites
 
 Before running this application, ensure you have the following installed:
 
@@ -149,7 +127,7 @@ docker-compose --version
 
 ---
 
-## ?? Getting Started
+## Getting Started
 
 ### 1. Clone the Repository
 
@@ -199,10 +177,10 @@ dotnet run --project Accenture-Assessment.AppHost
 5. Web Frontend starts at `https://localhost:7148`
 
 **Access the application:**
-- ?? **Web UI**: https://localhost:7148
-- ?? **Aspire Dashboard**: http://localhost:15000
-- ?? **API (Swagger)**: https://localhost:7001/openapi (development only)
-- ?? **Health Check**: https://localhost:7001/health
+- **Web UI**: https://localhost:7148
+- **Aspire Dashboard**: http://localhost:15000
+- **API (Swagger)**: https://localhost:7001/openapi (development only)
+- **Health Check**: https://localhost:7001/health
 
 ### Option 2: Using Visual Studio
 
@@ -230,9 +208,9 @@ dotnet run --project Accenture-Assessment.Web
 
 ---
 
-## ?? Running Tests
+## Running Tests
 
-The solution includes **68 comprehensive tests** covering unit, integration, and constraint testing.
+The solution includes **47 comprehensive tests** covering unit, integration, and constraint testing.
 
 ### Run All Tests
 
@@ -246,8 +224,6 @@ dotnet test
 # Unit tests only
 dotnet test --filter "FullyQualifiedName~RepositoryTests"
 
-# Integration tests only
-dotnet test --filter "FullyQualifiedName~WebTests"
 
 # Service layer tests
 dotnet test --filter "FullyQualifiedName~HolidayDataServiceTests"
@@ -266,7 +242,6 @@ dotnet test --logger "console;verbosity=detailed"
 
 | Test Suite | Tests | Coverage |
 |------------|-------|----------|
-| **WebTests** | 14 | Integration tests |
 | **CountryRepositoryTests** | 18 | Unit tests (InMemory) |
 | **CountryRepositoryConstraintTests** | 3 | Constraint tests (SQLite) |
 | **HolidayRepositoryTests** | 26 | Unit tests (InMemory) |
@@ -275,7 +250,7 @@ dotnet test --logger "console;verbosity=detailed"
 
 ---
 
-## ?? API Documentation
+## API Documentation
 
 ### Base URL
 
@@ -403,56 +378,9 @@ For complete API documentation, visit the Swagger UI when running in development
 
 ---
 
-## ?? Project Structure
 
-```
-Accenture-Assessment/
-??? Accenture-Assessment.Web/              # Blazor Server frontend
-?   ??? Components/
-?   ?   ??? Pages/
-?   ?       ??? Holidays.razor             # Main holiday page
-?   ??? Program.cs
-?
-??? Accenture-Assessment.ApiService/       # ASP.NET Core API
-?   ??? Program.cs                         # API endpoints & configuration
-?   ??? appsettings.json
-?
-??? Accenture-Assessment.Data/             # Data layer
-?   ??? Contexts/
-?   ?   ??? HolidayDbContext.cs           # EF Core context
-?   ??? Models/                            # Entity models
-?   ??? Repositories/                      # Data access
-?   ??? Services/                          # Business logic
-?   ??? Interfaces/                        # Abstractions
-?   ??? Migrations/                        # EF Core migrations
-?
-??? Accenture-Assessment.Contracts/        # Shared contracts
-?   ??? Dtos/                              # Data transfer objects
-?   ??? Enums/                             # Shared enumerations
-?
-??? Accenture-Assessment.AppHost/          # Aspire orchestration
-?   ??? AppHost.cs
-?
-??? Accenture-Assessment.ServiceDefaults/  # Aspire defaults
-?   ??? Extensions.cs
-?
-??? Accenture-Assessment.Tests/            # Test project
-?   ??? WebTests.cs                        # Integration tests
-?   ??? CountryRepositoryTests.cs          # Unit tests
-?   ??? HolidayRepositoryTests.cs          # Unit tests
-?   ??? HolidayDataServiceTests.cs         # Service tests
-?
-??? Documentation/
-    ??? README.md                          # This file
-    ??? PRODUCTION-README.md               # Production deployment guide
-    ??? PRODUCTION-CHANGES.md              # Change log
-    ??? TEST-DOCUMENTATION.md              # Test documentation
-    ??? *.md                               # Additional docs
-```
 
----
-
-## ?? Configuration
+## Configuration
 
 ### appsettings.json
 
@@ -487,30 +415,30 @@ Accenture-Assessment/
 
 ---
 
-## ?? Disclaimer
+## Disclaimer
 
 ### Development & Testing Only
 
 **This application is provided as-is for educational and demonstration purposes.**
 
-- ?? **Not Production-Deployed**: While the code includes production-ready features, this specific instance is a development prototype
-- ?? **External API Dependency**: Relies on the free [Nager.Date API](https://date.nager.at/) which may have rate limits or availability issues
-- ?? **No Warranty**: No guarantees regarding accuracy, availability, or fitness for any particular purpose
-- ?? **Data Accuracy**: Holiday data is sourced from external APIs and may not be 100% accurate or up-to-date
-- ?? **Authentication**: Currently has no authentication - add authentication/authorization before public deployment
+- **Not Production-Deployed**: While the code includes production-ready features, this specific instance is a development prototype
+- **External API Dependency**: Relies on the free [Nager.Date API](https://date.nager.at/) which may have rate limits or availability issues
+- **No Warranty**: No guarantees regarding accuracy, availability, or fitness for any particular purpose
+- **Data Accuracy**: Holiday data is sourced from external APIs and may not be 100% accurate or up-to-date
+- **Authentication**: Currently has no authentication - add authentication/authorization before public deployment
 
 ### Security Considerations
 
 Before deploying to production, ensure you:
 
-1. ? Add authentication (JWT, OAuth2, etc.)
-2. ? Configure HTTPS with proper certificates
-3. ? Secure connection strings (use Azure Key Vault or similar)
-4. ? Review and harden CORS policies
-5. ? Implement proper logging and monitoring
-6. ? Add API key management if exposing publicly
-7. ? Review rate limiting settings for expected load
-8. ? Test with production-like data volumes
+1. Add authentication (JWT, OAuth2, etc.)
+2. Configure HTTPS with proper certificates
+3. Secure connection strings (use Azure Key Vault or similar)
+4. Review and harden CORS policies
+5. Implement proper logging and monitoring
+6. Add API key management if exposing publicly
+7. Review rate limiting settings for expected load
+8. Test with production-like data volumes
 
 ### External Dependencies
 
@@ -526,33 +454,24 @@ This application depends on:
 
 ### License Compatibility
 
-- ? .NET 9 - MIT License
-- ? Entity Framework Core - MIT License
-- ? Blazor - MIT License
-- ?? External API - Check [Nager.Date terms](https://date.nager.at/)
+- .NET 9 - MIT License
+- Entity Framework Core - MIT License
+- Blazor - MIT License
+- External API - Check [Nager.Date terms](https://date.nager.at/)
 
 ---
 
-## ?? Additional Documentation
 
-For more detailed information, see:
-
-- ?? [Production Deployment Guide](PRODUCTION-README.md) - Comprehensive production features and deployment checklist
-- ?? [Production Changes](PRODUCTION-CHANGES.md) - Complete list of production enhancements
-- ?? [Test Documentation](TEST-DOCUMENTATION.md) - Detailed test coverage and strategy
-- ??? [Database Provider Guide](TEST-DATABASE-PROVIDERS.md) - InMemory vs SQLite vs SQL Server comparison
-- ?? [Repository Tests](COUNTRYREPOSITORY-TESTS.md) - CountryRepository test documentation
-- ?? [Holiday Tests](HOLIDAYREPOSITORY-TESTS.md) - HolidayRepository test documentation
 
 ---
 
-## ?? Contributing
+## Contributing
 
 This is an assessment project and is not accepting contributions. However, feel free to fork and modify for your own learning purposes.
 
 ---
 
-## ?? Contact
+## Contact
 
 For questions about this assessment project, please contact:
 
@@ -561,7 +480,7 @@ For questions about this assessment project, please contact:
 
 ---
 
-## ?? Learning Objectives Demonstrated
+## Learning Objectives Demonstrated
 
 This project demonstrates:
 
@@ -580,11 +499,11 @@ This project demonstrates:
 
 ---
 
-## ?? Project Stats
+## Project Stats
 
 - **Lines of Code**: ~5,000
 - **Test Coverage**: 100% method coverage
-- **Total Tests**: 68 (all passing)
+- **Total Tests**: 41 (all passing)
 - **Projects**: 7
 - **External APIs**: 1 (Nager.Date)
 - **Database Tables**: 2 (Countries, Holidays)
@@ -593,7 +512,7 @@ This project demonstrates:
 
 ---
 
-## ?? Quick Start Summary
+## Quick Start Summary
 
 ```bash
 # 1. Clone
@@ -611,19 +530,19 @@ https://localhost:7148
 ```
 
 **That's it!** The application will:
-- ? Start SQL Server in Docker
-- ? Start Redis in Docker
-- ? Apply database migrations
-- ? Start API service
-- ? Start web frontend
-- ? Open Aspire Dashboard
+- Start SQL Server in Docker
+- Start Redis in Docker
+- Apply database migrations
+- Start API service
+- Start web frontend
+- Open Aspire Dashboard
 
 ---
 
-## ? Star This Project
+## Star This Project
 
 If you found this project helpful for learning .NET 9, Blazor, or .NET Aspire, please consider giving it a star on GitHub!
 
 ---
 
-**Made with ?? using .NET 9 and .NET Aspire**
+**Made using .NET 9 and .NET Aspire**
