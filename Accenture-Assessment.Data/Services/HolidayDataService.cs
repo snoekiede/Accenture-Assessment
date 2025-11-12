@@ -23,7 +23,7 @@ namespace Accenture_Assessment.Data.Services
                 LocalName = dto.LocalName,
                 Fixed = dto.Fixed,
                 Global = dto.Global,
-                Counties = dto.Counties,
+                Counties = dto.Counties ?? new List<string>(),
                 LaunchYear = dto.LaunchYear,
                 Type = dto.Type
             };

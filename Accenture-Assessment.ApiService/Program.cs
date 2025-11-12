@@ -224,9 +224,6 @@ app.MapGet("/api/holidays/shared/{year}", async (
     .SetVaryByRouteValue("year")
     .SetVaryByQuery("countryCode1", "countryCode2"));
 
-// Health check endpoint
-// Note: /health endpoint is already registered by AddServiceDefaults()
-// Remove duplicate: app.MapHealthChecks("/health");
 
 app.MapDefaultEndpoints();
 
