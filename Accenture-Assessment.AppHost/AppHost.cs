@@ -2,11 +2,11 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var cache = builder.AddRedis("cache");
 
-var sqlServer = builder.AddSqlServer("sqlserver")
+var postgres = builder.AddPostgres("postgres")
     .WithLifetime(ContainerLifetime.Persistent)
     .WithDataVolume();
 
-var database=sqlServer.AddDatabase("holidaysdb");
+var database = postgres.AddDatabase("holidaysdb");
 
 var apiService = builder.AddProject<Projects.Accenture_Assessment_ApiService>("apiservice")
     .WithHttpHealthCheck("/health")

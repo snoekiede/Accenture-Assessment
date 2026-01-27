@@ -86,7 +86,7 @@ namespace Accenture_Assessment.Data.Services
         public async Task<List<HolidayDto>> GetLastCelebratedHolidaysAsync(string countryCode, int count)
         {
             var celebratedHolidays = new List<HolidayDto>();
-            var currentDate = DateTime.Now;
+            var currentDate = DateTime.UtcNow;
             var currentYear = currentDate.Year;
             var yearOffset = 0;
 

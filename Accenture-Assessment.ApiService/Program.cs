@@ -9,13 +9,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Polly;
 
+// Configure Npgsql to convert DateTime to UTC when storing in PostgreSQL
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", false);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
 
-// Configure SQL Server with connection resiliency
-builder.AddSqlServerDbContext<HolidayDbContext>("holidaysdb");
+// Configure PostgreSQL with connection resiliency
+builder.AddNpgsqlDbContext<HolidayDbContext>("holidaysdb");
 
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 builder.Services.AddScoped<IHolidayRepository, HolidayRepository>();
